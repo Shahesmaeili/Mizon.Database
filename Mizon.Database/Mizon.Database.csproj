@@ -1,15 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsAotCompatible>true</IsAotCompatible>
     <Platforms>AnyCPU;x64</Platforms>
     <!-- Generate the model during the build so consumers never use stale metadata.
          Queries belong to the consuming projects and must be precompiled there. -->
-    <EFOptimizeContext Condition="'$(DesignTimeBuild)' != 'true'">true</EFOptimizeContext>
-    <EFScaffoldModelStage>build</EFScaffoldModelStage>
+    <EFScaffoldModelStage Condition="'$(DesignTimeBuild)' != 'true'">build</EFScaffoldModelStage>
+    <EFScaffoldModelStage Condition="'$(DesignTimeBuild)' == 'true'">none</EFScaffoldModelStage>
     <EFPrecompileQueriesStage>none</EFPrecompileQueriesStage>
     <DbContextType>Mizon.Database.MizonDatabaseContext</DbContextType>
     <EFTargetNamespace>Mizon.Database.CompiledModels</EFTargetNamespace>
@@ -17,29 +17,29 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="10.0.5">
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="11.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="11.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.5" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tasks" Version="10.0.5">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="11.0.0" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tasks" Version="11.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="10.0.5">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="11.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
   </ItemGroup>
 
-  <!-- EF 10 runs build-stage generation from CoreCompile, before the normal
+  <!-- EF runs build-stage generation from CoreCompile, before the normal
        output copy. Supply the current assembly and its runtime files so clean
        builds work and model changes never read a previous build's assembly. -->
   <Target Name="PrepareCurrentAssemblyForEfModelGeneration"
           BeforeTargets="_EFGenerateFilesAfterBuild"
           DependsOnTargets="GenerateBuildDependencyFile;GenerateBuildRuntimeConfigurationFiles"
-          Condition="'$(_EFGenerationStage)' == '' And '$(EFOptimizeContext)' == 'true' And '$(EFScaffoldModelStage)' == 'build' And '$(DesignTimeBuild)' != 'true'">
+          Condition="'$(_EFGenerationStage)' == '' And '$(EFScaffoldModelStage)' == 'build' And '$(DesignTimeBuild)' != 'true'">
     <Copy SourceFiles="@(IntermediateAssembly)"
           DestinationFiles="$(_AssemblyFullName)"
           SkipUnchangedFiles="true" />

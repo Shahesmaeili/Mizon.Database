@@ -5,6 +5,12 @@ using Mizon.Database;
 using Mizon.Database.CompiledModels;
 using Mizon.Database.Entities;
 
+if (args is ["--benchmark", var outputPath])
+{
+    DatabaseBenchmarks.Run(outputPath);
+    return;
+}
+
 // Saves are intercepted before SQL is sent. These checks cover tracking and dispatch;
 // they do not simulate a database write or AcceptAllChanges after a successful write.
 var modes = new SaveMode[]

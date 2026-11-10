@@ -1,6 +1,7 @@
 # Mizon.Database
 
-Targets .NET 10 and uses the same EF Core 10.0.5 package family as the API.
+Targets .NET 11 and uses the same EF Core 11.0.0 package family as the API.
+The repository pins SDK 11.0.100 with patch roll-forward in `global.json`.
 
 ## Build and runtime model
 
@@ -9,7 +10,7 @@ normal build. The generated sources stay under the configuration/platform-specif
 `obj` directory; do not edit or check them in. EF discovers the generated model
 automatically, including when a consumer constructs the context directly.
 
-EF 10 invokes generation before the normal output copy. The project's
+EF invokes generation before the normal output copy. The project's
 `PrepareCurrentAssemblyForEfModelGeneration` target supplies the current assembly
 and runtime/dependency files first, so a fresh build works and an existing build
 cannot generate a model from the previous assembly. Fresh x64, first model-change
@@ -55,12 +56,42 @@ interceptors, cancellation and exception propagation.
 
 Native publishing can be checked separately:
 
-The same 40 checks also passed in the published Windows x64 NativeAOT executable.
+The historical .NET 10 native run passed all 40 checks. Current migration validation
+is recorded in [the handoff](../docs/ai/HANDOFF.md); a model-only native run does not
+certify the complete API query pipeline.
 
 ```powershell
 dotnet publish Mizon.Database.Tests -c Release -r win-x64 -p:PublishAot=true -p:DebugType=None -p:DebugSymbols=false
-.\Mizon.Database.Tests\bin\Release\net10.0\win-x64\publish\Mizon.Database.Tests.exe
+.\Mizon.Database.Tests\bin\Release\net11.0\win-x64\publish\Mizon.Database.Tests.exe
 ```
+
+## .NET 11 upgrade
+
+EF 11 removes `EFOptimizeContext`. Model generation now uses
+`EFScaffoldModelStage=build` directly, with `none` for design-time builds;
+consumer query precompilation remains separate. The explicit Design package
+reference is retained because Tools/Tasks 11 no longer bring it transitively.
+
+SQL Server defaults to compatibility 160 in EF 11. The development database was
+verified read-only as SQL Server 17.0.1145.4 / compatibility 170, so it supports
+that default. No database compatibility level or schema was changed. Deployments
+on older databases must set a supported `UseCompatibilityLevel` in their host.
+SqlClient 7 separates Azure authentication dependencies; the current integrated
+Windows authentication needs no Azure extension package.
+
+The opt-in benchmark performs no SQL connections or writes:
+
+```powershell
+dotnet build Mizon.Database.Tests -c Release -p:Platform=x64
+dotnet Mizon.Database.Tests/bin/x64/Release/net11.0/Mizon.Database.Tests.dll --benchmark D:/MizonTaskDiagnostics/database.json
+```
+
+It records cold compiled-model/provider initialization and warmed fresh/pooled
+context access. Each warm case runs 2,000 warm-up operations followed by 15
+batches of 2,000; timings and current-thread allocated bytes are per operation.
+Repeat in separate processes and compare identical source/configuration on both
+runtimes. The cold observation is one sample per process, not a statistically
+meaningful p95 by itself. These results do not measure SQL/server/network/UI memory.
 
 ## Measurements on the development machine
 
@@ -94,9 +125,9 @@ query instead exposed an EF 10.0.5 generated-interceptor C# syntax error. Genera
 code was not patched to hide that failure. EF/SqlClient trimming/AOT warnings also
 remain. These limitations must be rechecked before a production AOT rollout.
 
-The installed dependency graph additionally reports existing NuGet audit warnings
+The historical .NET 10 dependency graph additionally reported NuGet audit warnings
 for System.Security.Cryptography.Pkcs 9.0.4 and the installed ILCompiler 10.0.9.
-Package versions and security policy were not silently changed as part of model
+Package versions and security policy were not changed as part of that model
 optimization. NuGet audit was disabled only in the temporary query-precompilation
 diagnostic process to separate its workspace-warning issue from runtime behavior;
 it remains enabled in project builds.

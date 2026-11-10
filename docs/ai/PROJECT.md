@@ -20,11 +20,13 @@ All runtime writes and decisions belong in Mizon.Server.Logic/Operations in the
 server repository. Do not populate histories with invented baseline dates or add
 raw SQL business behavior during a schema-only task.
 
-## .NET 10 and NativeAOT
+## .NET 11 and NativeAOT
 
-EF Core 10.0.5 compiled-model generation runs during real builds; sources stay under
+EF Core 11.0.0 compiled-model generation runs during real builds; sources stay under
 obj per configuration/platform. GlobalUsings remains small. Preserve project
-targets that ensure model generation uses the current compiled assembly.
+targets that ensure model generation uses the current compiled assembly. EF 11
+uses EFScaffoldModelStage directly; the removed EFOptimizeContext must not be set.
+global.json pins SDK 11.0.100 with patch roll-forward.
 
 IsAotCompatible enables analysis. EF consumer queries need separate precompilation;
 the complete API is not certified NativeAOT. Do not patch generated interceptors
