@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Mizon.Database/Mizon.Database.csproj" />
+  <Project Path="Mizon.Database.Tests/Mizon.Database.Tests.csproj" />
+</Solution>

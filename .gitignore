@@ -1,0 +1,22 @@
+# Build and IDE state
+[Bb]in/
+[Oo]bj/
+.vs/
+*.user
+*.suo
+*.rsuser
+*.pubxml.user
+
+# Generated diagnostics and local database/credential files
+TestResults/
+BenchmarkDotNet.Artifacts/
+*.log
+*.binlog
+*.dmp
+*.bak
+*.mdf
+*.ldf
+*.pfx
+*.snk
+secrets.json
+appsettings.Development.json
