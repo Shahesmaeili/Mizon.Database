@@ -4,6 +4,13 @@ Read [the shared workflow](docs/ai/COLLABORATION.md), [project map](docs/ai/PROJ
 and [handoff](docs/ai/HANDOFF.md) before editing.
 
 - Preserve entity/configuration/naming conventions and relational ownership.
+- Standing user requirement, effective 2026-11-12: every future new or changed
+  interactive feature/page must also support Xbox controllers. Coordinate the
+  Windows client for schema work supporting such features; follow the
+  [shared controller requirements](docs/ai/COLLABORATION.md#xbox-controller-support-is-part-of-interactive-features).
+  Preserve shared operations, native UI/accessibility/localization and cleanup;
+  include meaningful input/state/lifecycle checks and report unverified hardware
+  and visual cases. Existing pages are not presumed covered.
 - Model schema with EF code-first migrations. Runtime inserts/updates and business
   decisions belong in the sibling Mizon.Server.Logic/Operations project.
 - Do not add SQL business logic, invent historical records/backfills or apply
