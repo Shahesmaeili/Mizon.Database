@@ -10,6 +10,16 @@ public class Person : IEntityTable<int>, IPublicId, ICreate, IUpdate
     public int? ProfileMediaId { get; set; }
     public Media? ProfileMedia { get; set; }
 
+    public int? CoverMediaId { get; set; }
+    public Media? CoverMedia { get; set; }
+
+    public int? ModelMediaId { get; set; }
+    public Media? ModelMedia { get; set; }
+
+    // Set only when a Mizon client officially represents this person.
+    public int? LinkedClientId { get; set; }
+    public Client? LinkedClient { get; set; }
+
     public DateTimeOffset CreateDateTime { get; set; }
     public DateTimeOffset? UpdateDateTime { get; set; }
 

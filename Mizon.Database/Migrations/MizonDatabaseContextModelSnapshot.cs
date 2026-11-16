@@ -13,11 +13,13 @@ namespace Mizon.Database.Migrations
     [DbContext(typeof(MizonDatabaseContext))]
     partial class MizonDatabaseContextModelSnapshot : ModelSnapshot
     {
+        public override string LastMigrationId => "20261116045403_AddPersonProfileMediaAndClientLink";
+
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.5")
+                .HasAnnotation("ProductVersion", "11.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -1057,7 +1059,7 @@ namespace Mizon.Database.Migrations
 
                     b.HasIndex("MusicId");
 
-                    b.HasIndex("PersonId");
+                    b.HasIndex("PersonId", "MusicId");
 
                     b.ToTable("MusicContributors");
                 });
@@ -2711,6 +2713,9 @@ namespace Mizon.Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("CoverMediaId")
+                        .HasColumnType("int");
+
                     b.Property<DateTimeOffset>("CreateDateTime")
                         .HasColumnType("datetimeoffset");
 
@@ -2724,6 +2729,12 @@ namespace Mizon.Database.Migrations
                         .HasMaxLength(64)
                         .HasColumnType("nvarchar(64)");
 
+                    b.Property<int?>("LinkedClientId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ModelMediaId")
+                        .HasColumnType("int");
+
                     b.Property<int?>("ProfileMediaId")
                         .HasColumnType("int");
 
@@ -2734,6 +2745,14 @@ namespace Mizon.Database.Migrations
                         .HasColumnType("datetimeoffset");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CoverMediaId");
+
+                    b.HasIndex("LinkedClientId")
+                        .IsUnique()
+                        .HasFilter("[LinkedClientId] IS NOT NULL");
+
+                    b.HasIndex("ModelMediaId");
 
                     b.HasIndex("ProfileMediaId");
 
@@ -3968,10 +3987,31 @@ namespace Mizon.Database.Migrations
 
             modelBuilder.Entity("Mizon.Database.Entities.Person", b =>
                 {
+                    b.HasOne("Mizon.Database.Entities.Media", "CoverMedia")
+                        .WithMany()
+                        .HasForeignKey("CoverMediaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mizon.Database.Entities.Client", "LinkedClient")
+                        .WithMany()
+                        .HasForeignKey("LinkedClientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mizon.Database.Entities.Media", "ModelMedia")
+                        .WithMany()
+                        .HasForeignKey("ModelMediaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.HasOne("Mizon.Database.Entities.Media", "ProfileMedia")
                         .WithMany()
                         .HasForeignKey("ProfileMediaId")
                         .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("CoverMedia");
+
+                    b.Navigation("LinkedClient");
+
+                    b.Navigation("ModelMedia");
 
                     b.Navigation("ProfileMedia");
                 });

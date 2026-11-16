@@ -16,5 +16,24 @@ internal sealed class PersonConfiguration : IEntityTypeConfiguration<Person>
             .WithMany()
             .HasForeignKey(x => x.ProfileMediaId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.CoverMedia)
+            .WithMany()
+            .HasForeignKey(x => x.CoverMediaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.ModelMedia)
+            .WithMany()
+            .HasForeignKey(x => x.ModelMediaId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasOne(x => x.LinkedClient)
+            .WithMany()
+            .HasForeignKey(x => x.LinkedClientId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.HasIndex(x => x.LinkedClientId)
+            .IsUnique()
+            .HasFilter("[LinkedClientId] IS NOT NULL");
     }
 }

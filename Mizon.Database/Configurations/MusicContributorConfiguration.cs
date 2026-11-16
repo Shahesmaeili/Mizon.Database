@@ -4,6 +4,8 @@ internal sealed class MusicContributorConfiguration : IEntityTypeConfiguration<M
 {
     public void Configure(EntityTypeBuilder<MusicContributor> builder)
     {
+        builder.HasIndex(x => new { x.PersonId, x.MusicId });
+
         builder.HasOne(x => x.Music)
 .WithMany(x => x.MusicContributors)
 .HasForeignKey(x => x.MusicId)
