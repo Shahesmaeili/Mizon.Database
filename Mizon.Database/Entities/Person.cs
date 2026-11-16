@@ -1,4 +1,4 @@
-﻿namespace Mizon.Database.Entities;
+namespace Mizon.Database.Entities;
 
 public class Person : IEntityTable<int>, IPublicId, ICreate, IUpdate
 {
@@ -23,6 +23,7 @@ public class Person : IEntityTable<int>, IPublicId, ICreate, IUpdate
     public DateTimeOffset CreateDateTime { get; set; }
     public DateTimeOffset? UpdateDateTime { get; set; }
 
+    public List<FeaturedPerson> FeaturedPersons { get; set; } = [];
     public List<MusicContributor> MusicContributors { get; set; } = [];
     public List<ClientFollow> ClientFollowers { get; set; } = [];
 

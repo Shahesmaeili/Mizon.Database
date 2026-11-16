@@ -19,6 +19,7 @@ internal sealed class MusicPlayConfiguration : IEntityTypeConfiguration<MusicPla
             .HasForeignKey(x => x.PlatformVersionId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.HasIndex(x => new { x.MusicId, x.CreateDateTime }).IncludeProperties(x => x.ClientId);
         builder.HasIndex(x => new { x.ClientId, x.PlaybackPublicId }).IsUnique();
         builder.HasIndex(x => new { x.ClientId, x.CreateDateTime, x.Id })
             .IsDescending(false, true, true);

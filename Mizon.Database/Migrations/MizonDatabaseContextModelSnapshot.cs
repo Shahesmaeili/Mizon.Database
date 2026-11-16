@@ -13,7 +13,7 @@ namespace Mizon.Database.Migrations
     [DbContext(typeof(MizonDatabaseContext))]
     partial class MizonDatabaseContextModelSnapshot : ModelSnapshot
     {
-        public override string LastMigrationId => "20261116045403_AddPersonProfileMediaAndClientLink";
+        public override string LastMigrationId => "20261116060818_AddFeaturedPersons";
 
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -686,6 +686,107 @@ namespace Mizon.Database.Migrations
                         .IsUnique();
 
                     b.ToTable("ClientUsernames");
+                });
+
+            modelBuilder.Entity("Mizon.Database.Entities.FeaturedPerson", b =>
+                {
+                    var id = b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
+
+                    b.Property<string>("AccentColor")
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<DateTimeOffset>("CreateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<byte>("FeaturedPersonTypeId")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("ModelAttribution")
+                        .HasMaxLength(240)
+                        .HasColumnType("nvarchar(240)");
+
+                    b.Property<float>("ModelVerticalFocus")
+                        .HasColumnType("real");
+
+                    b.Property<float>("ModelViewScale")
+                        .HasColumnType("real");
+
+                    b.Property<float>("ModelYawInDegrees")
+                        .HasColumnType("real");
+
+                    b.Property<int>("PersonId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<short>("SortOrder")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTimeOffset?>("UpdateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PersonId");
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.HasIndex("FeaturedPersonTypeId", "PersonId")
+                        .IsUnique();
+
+                    b.HasIndex("FeaturedPersonTypeId", "SortOrder")
+                        .IsUnique();
+
+                    b.ToTable("FeaturedPersons", t =>
+                        {
+                            t.HasCheckConstraint("CK_FeaturedPersons_SortOrder", "[SortOrder] > 0");
+                        });
+                });
+
+            modelBuilder.Entity("Mizon.Database.Entities.FeaturedPersonType", b =>
+                {
+                    b.Property<byte>("Id")
+                        .HasColumnType("tinyint");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("nvarchar(16)");
+
+                    b.Property<DateTimeOffset>("CreateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<string>("PersianTitle")
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("nvarchar(32)");
+
+                    b.Property<DateTimeOffset?>("UpdateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Code")
+                        .IsUnique();
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("FeaturedPersonTypes");
                 });
 
             modelBuilder.Entity("Mizon.Database.Entities.ImageFormat", b =>
@@ -2487,11 +2588,11 @@ namespace Mizon.Database.Migrations
 
             modelBuilder.Entity("Mizon.Database.Entities.MusicPlay", b =>
                 {
-                    b.Property<int>("Id")
+                    var id = b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
 
                     b.Property<int>("ClientId")
                         .HasColumnType("int");
@@ -2510,12 +2611,14 @@ namespace Mizon.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MusicId");
-
                     b.HasIndex("PlatformVersionId");
 
                     b.HasIndex("ClientId", "PlaybackPublicId")
                         .IsUnique();
+
+                    var index = b.HasIndex("MusicId", "CreateDateTime");
+
+                    SqlServerIndexBuilderExtensions.IncludeProperties(index, new[] { "ClientId" });
 
                     b.HasIndex("ClientId", "CreateDateTime", "Id")
                         .IsDescending(false, true, true);
@@ -2707,11 +2810,11 @@ namespace Mizon.Database.Migrations
 
             modelBuilder.Entity("Mizon.Database.Entities.Person", b =>
                 {
-                    b.Property<int>("Id")
+                    var id = b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(id);
 
                     b.Property<int?>("CoverMediaId")
                         .HasColumnType("int");
@@ -3476,6 +3579,25 @@ namespace Mizon.Database.Migrations
                         .IsRequired();
 
                     b.Navigation("Client");
+                });
+
+            modelBuilder.Entity("Mizon.Database.Entities.FeaturedPerson", b =>
+                {
+                    b.HasOne("Mizon.Database.Entities.FeaturedPersonType", "FeaturedPersonType")
+                        .WithMany("FeaturedPersons")
+                        .HasForeignKey("FeaturedPersonTypeId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mizon.Database.Entities.Person", "Person")
+                        .WithMany("FeaturedPersons")
+                        .HasForeignKey("PersonId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FeaturedPersonType");
+
+                    b.Navigation("Person");
                 });
 
             modelBuilder.Entity("Mizon.Database.Entities.Media", b =>
@@ -4274,6 +4396,11 @@ namespace Mizon.Database.Migrations
                     b.Navigation("ClientSessionIps");
                 });
 
+            modelBuilder.Entity("Mizon.Database.Entities.FeaturedPersonType", b =>
+                {
+                    b.Navigation("FeaturedPersons");
+                });
+
             modelBuilder.Entity("Mizon.Database.Entities.ImageFormat", b =>
                 {
                     b.Navigation("ClientProfiles");
@@ -4454,6 +4581,8 @@ namespace Mizon.Database.Migrations
             modelBuilder.Entity("Mizon.Database.Entities.Person", b =>
                 {
                     b.Navigation("ClientFollowers");
+
+                    b.Navigation("FeaturedPersons");
 
                     b.Navigation("MusicContributors");
                 });

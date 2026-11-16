@@ -95,6 +95,8 @@ public sealed class MizonDatabaseContext(DbContextOptions<MizonDatabaseContext> 
         modelBuilder.ApplyConfiguration(new MusicFileStemTypeConfiguration());
         modelBuilder.ApplyConfiguration(new MusicFileStemPitchConfiguration());
         modelBuilder.ApplyConfiguration(new PersonConfiguration());
+        modelBuilder.ApplyConfiguration(new FeaturedPersonTypeConfiguration());
+        modelBuilder.ApplyConfiguration(new FeaturedPersonConfiguration());
 
 
         modelBuilder.ApplyConfiguration(new MusicGenreConfiguration());
@@ -214,6 +216,8 @@ public sealed class MizonDatabaseContext(DbContextOptions<MizonDatabaseContext> 
     public DbSet<StoryMusicWidget> StoryMusicWidgets => Set<StoryMusicWidget>();
     public DbSet<StoryClientWidget> StoryClientWidgets => Set<StoryClientWidget>();
     public DbSet<Person> Persons => Set<Person>();
+    public DbSet<FeaturedPersonType> FeaturedPersonTypes => Set<FeaturedPersonType>();
+    public DbSet<FeaturedPerson> FeaturedPersons => Set<FeaturedPerson>();
 
 
     public DbSet<Platform> Platforms => Set<Platform>();
