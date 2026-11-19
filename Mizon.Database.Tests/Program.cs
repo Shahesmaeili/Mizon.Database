@@ -26,6 +26,7 @@ var modes = new SaveMode[]
 var passed = 0;
 await Run("Default context resolves the generated compiled model", VerifyCompiledModel);
 await Run("Convention-only entities retain table names and cached sets", VerifyConventionEntities);
+await Run("Track music videos enforce one link and protect media references", VerifyTrackMusicVideo);
 await Run("Pooled context resets after Dispose", () => VerifyPooledContext(false));
 await Run("Pooled context resets after DisposeAsync", () => VerifyPooledContext(true));
 
@@ -91,6 +92,19 @@ static async Task VerifyConventionEntities()
     VerifySet(context, () => context.MusicLyrics, "MusicLyrics");
     VerifySet(context, () => context.MusicLyricLines, "MusicLyricLines");
     VerifySet(context, () => context.MusicLyricLineWords, "MusicLyricLineWords");
+}
+
+static async Task VerifyTrackMusicVideo()
+{
+    await using var context = CreateContext(new SuppressSaveChangesInterceptor());
+    VerifySet(context, () => context.MusicVideos, "MusicVideos");
+    var video = context.Model.FindEntityType(typeof(MusicVideo))!;
+    Assert(video.GetForeignKeys().Count() == 3 && video.GetForeignKeys().All(key => key.DeleteBehavior == DeleteBehavior.Restrict),
+        "The track, video media, and cover media must have restricted deletion.");
+    Assert(video.GetIndexes().Any(index => index.IsUnique && index.Properties.Single().Name == nameof(MusicVideo.MusicId)),
+        "A track can have at most one linked music video.");
+    Assert(video.FindProperty(nameof(MusicVideo.CoverMediaId))!.IsNullable,
+        "An optional thumbnail must not prevent a linked video from playing.");
 }
 
 static void VerifySet<TEntity>(MizonDatabaseContext context, Func<DbSet<TEntity>> getSet, string tableName)

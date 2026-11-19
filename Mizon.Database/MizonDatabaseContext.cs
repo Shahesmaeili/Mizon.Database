@@ -82,6 +82,7 @@ public sealed class MizonDatabaseContext(DbContextOptions<MizonDatabaseContext> 
         modelBuilder.ApplyConfiguration(new MusicContributorTypeConfiguration());
         modelBuilder.ApplyConfiguration(new MusicCoverConfiguration());
         modelBuilder.ApplyConfiguration(new MusicFileConfiguration());
+        modelBuilder.ApplyConfiguration(new MusicVideoConfiguration());
         modelBuilder.ApplyConfiguration(new MusicFileQualityConfiguration());
         modelBuilder.ApplyConfiguration(new MusicFileQualityBitDepthConfiguration());
         modelBuilder.ApplyConfiguration(new MusicFileQualityChannelConfiguration());
@@ -173,6 +174,7 @@ public sealed class MizonDatabaseContext(DbContextOptions<MizonDatabaseContext> 
     public DbSet<MusicContributor> MusicContributors => Set<MusicContributor>();
     public DbSet<MusicContributorType> MusicContributorTypes => Set<MusicContributorType>();
     public DbSet<MusicCover> MusicCovers => Set<MusicCover>();
+    public DbSet<MusicVideo> MusicVideos => Set<MusicVideo>();
 
     public DbSet<MusicFile> MusicFiles => Set<MusicFile>();
     public DbSet<MusicFileQuality> MusicFileQualities => Set<MusicFileQuality>();

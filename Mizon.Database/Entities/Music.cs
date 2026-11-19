@@ -15,6 +15,7 @@ public class Music : IEntityTable<int>, IPublicId, ICreate, IUpdate
     public MusicLabel? MusicLabel { get; set; }
 
     public MusicCover? MusicCover { get; set; }
+    public MusicVideo? MusicVideo { get; set; }
 
    // public MusicKey? MusicKey { get; set; }
 

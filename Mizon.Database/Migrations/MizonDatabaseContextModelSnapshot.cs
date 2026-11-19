@@ -13,7 +13,7 @@ namespace Mizon.Database.Migrations
     [DbContext(typeof(MizonDatabaseContext))]
     partial class MizonDatabaseContextModelSnapshot : ModelSnapshot
     {
-        public override string LastMigrationId => "20261116060818_AddFeaturedPersons";
+        public override string LastMigrationId => "20261119232657_AddTrackMusicVideos";
 
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -2774,6 +2774,50 @@ namespace Mizon.Database.Migrations
                     b.ToTable("MusicReactionTypes");
                 });
 
+            modelBuilder.Entity("Mizon.Database.Entities.MusicVideo", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int?>("CoverMediaId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MediaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MusicId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("PublicId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTimeOffset?>("UpdateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CoverMediaId");
+
+                    b.HasIndex("MediaId");
+
+                    b.HasIndex("MusicId")
+                        .IsUnique();
+
+                    b.HasIndex("PublicId")
+                        .IsUnique();
+
+                    b.ToTable("MusicVideos");
+                });
+
             modelBuilder.Entity("Mizon.Database.Entities.MusicView", b =>
                 {
                     b.Property<int>("Id")
@@ -4080,6 +4124,32 @@ namespace Mizon.Database.Migrations
                     b.Navigation("PlatformVersion");
                 });
 
+            modelBuilder.Entity("Mizon.Database.Entities.MusicVideo", b =>
+                {
+                    b.HasOne("Mizon.Database.Entities.Media", "CoverMedia")
+                        .WithMany()
+                        .HasForeignKey("CoverMediaId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mizon.Database.Entities.Media", "Media")
+                        .WithMany()
+                        .HasForeignKey("MediaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mizon.Database.Entities.Music", "Music")
+                        .WithOne("MusicVideo")
+                        .HasForeignKey("Mizon.Database.Entities.MusicVideo", "MusicId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("CoverMedia");
+
+                    b.Navigation("Media");
+
+                    b.Navigation("Music");
+                });
+
             modelBuilder.Entity("Mizon.Database.Entities.MusicView", b =>
                 {
                     b.HasOne("Mizon.Database.Entities.Client", "Client")
@@ -4478,6 +4548,8 @@ namespace Mizon.Database.Migrations
                     b.Navigation("MusicPlays");
 
                     b.Navigation("MusicReactions");
+
+                    b.Navigation("MusicVideo");
 
                     b.Navigation("MusicViews");
 
