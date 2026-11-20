@@ -1,5 +1,11 @@
 # Database handoff — 2026-11-10
 
+## Music comment discussion — 2026-11-20
+
+Comments now have optional same-track parents and posting platforms, unique
+per-account votes and typed entity tags. See the
+[schema change and checks](tasks/2026-11-20-music-comment-discussion.md) before applying the migration.
+
 ## .NET 11 migration
 
 Both projects target net11.0, EF package family is 11.0.0 and global.json selects

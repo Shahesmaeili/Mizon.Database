@@ -13,7 +13,10 @@ namespace Mizon.Database.Migrations
     [DbContext(typeof(MizonDatabaseContext))]
     partial class MizonDatabaseContextModelSnapshot : ModelSnapshot
     {
-        public override string LastMigrationId => "20261119232657_AddTrackMusicVideos";
+        // If you encounter a merge conflict in the line below, it means you need to
+        // discard one of the migration branches and recreate its migrations on top of
+        // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
+        public override string LastMigrationId => "20261120145502_AddMusicCommentDiscussion";
 
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -1105,6 +1108,12 @@ namespace Mizon.Database.Migrations
                     b.Property<int>("MusicId")
                         .HasColumnType("int");
 
+                    b.Property<int?>("ParentMusicCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<short?>("PlatformVersionId")
+                        .HasColumnType("smallint");
+
                     b.Property<Guid>("PublicId")
                         .HasColumnType("uniqueidentifier");
 
@@ -1120,7 +1129,7 @@ namespace Mizon.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("MusicId");
+                    b.HasIndex("PlatformVersionId");
 
                     b.HasIndex("PublicId")
                         .IsUnique();
@@ -1128,7 +1137,90 @@ namespace Mizon.Database.Migrations
                     b.HasIndex("ClientId", "CreateDateTime", "Id")
                         .IsDescending(false, true, true);
 
+                    b.HasIndex("MusicId", "ParentMusicCommentId", "Id");
+
+                    b.HasIndex("MusicId", "Timestamp", "Id");
+
                     b.ToTable("MusicComments");
+                });
+
+            modelBuilder.Entity("Mizon.Database.Entities.MusicCommentTag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("MusicCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TaggedClientId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TaggedMusicId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TaggedMusicVideoId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TaggedPersonId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MusicCommentId");
+
+                    b.HasIndex("TaggedClientId");
+
+                    b.HasIndex("TaggedMusicId");
+
+                    b.HasIndex("TaggedMusicVideoId");
+
+                    b.HasIndex("TaggedPersonId");
+
+                    b.ToTable("MusicCommentTags", t =>
+                        {
+                            t.HasCheckConstraint("CK_MusicCommentTags_OneTarget", "(CASE WHEN [TaggedPersonId] IS NULL THEN 0 ELSE 1 END + CASE WHEN [TaggedClientId] IS NULL THEN 0 ELSE 1 END + CASE WHEN [TaggedMusicId] IS NULL THEN 0 ELSE 1 END + CASE WHEN [TaggedMusicVideoId] IS NULL THEN 0 ELSE 1 END) = 1");
+                        });
+                });
+
+            modelBuilder.Entity("Mizon.Database.Entities.MusicCommentVote", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClientId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset>("CreateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<bool>("IsLike")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("MusicCommentId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTimeOffset?>("UpdateDateTime")
+                        .HasColumnType("datetimeoffset");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("MusicCommentId", "ClientId")
+                        .IsUnique();
+
+                    b.HasIndex("MusicCommentId", "IsLike");
+
+                    b.ToTable("MusicCommentVotes");
                 });
 
             modelBuilder.Entity("Mizon.Database.Entities.MusicContributor", b =>
@@ -3702,9 +3794,82 @@ namespace Mizon.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Mizon.Database.Entities.PlatformVersion", "PlatformVersion")
+                        .WithMany()
+                        .HasForeignKey("PlatformVersionId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mizon.Database.Entities.MusicComment", "ParentMusicComment")
+                        .WithMany("Replies")
+                        .HasForeignKey("MusicId", "ParentMusicCommentId")
+                        .HasPrincipalKey("MusicId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Client");
 
                     b.Navigation("Music");
+
+                    b.Navigation("ParentMusicComment");
+
+                    b.Navigation("PlatformVersion");
+                });
+
+            modelBuilder.Entity("Mizon.Database.Entities.MusicCommentTag", b =>
+                {
+                    b.HasOne("Mizon.Database.Entities.MusicComment", "MusicComment")
+                        .WithMany("Tags")
+                        .HasForeignKey("MusicCommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Mizon.Database.Entities.Client", "TaggedClient")
+                        .WithMany()
+                        .HasForeignKey("TaggedClientId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mizon.Database.Entities.Music", "TaggedMusic")
+                        .WithMany()
+                        .HasForeignKey("TaggedMusicId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mizon.Database.Entities.MusicVideo", "TaggedMusicVideo")
+                        .WithMany()
+                        .HasForeignKey("TaggedMusicVideoId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("Mizon.Database.Entities.Person", "TaggedPerson")
+                        .WithMany()
+                        .HasForeignKey("TaggedPersonId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.Navigation("MusicComment");
+
+                    b.Navigation("TaggedClient");
+
+                    b.Navigation("TaggedMusic");
+
+                    b.Navigation("TaggedMusicVideo");
+
+                    b.Navigation("TaggedPerson");
+                });
+
+            modelBuilder.Entity("Mizon.Database.Entities.MusicCommentVote", b =>
+                {
+                    b.HasOne("Mizon.Database.Entities.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Mizon.Database.Entities.MusicComment", "MusicComment")
+                        .WithMany("Votes")
+                        .HasForeignKey("MusicCommentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Client");
+
+                    b.Navigation("MusicComment");
                 });
 
             modelBuilder.Entity("Mizon.Database.Entities.MusicContributor", b =>
@@ -4559,6 +4724,15 @@ namespace Mizon.Database.Migrations
             modelBuilder.Entity("Mizon.Database.Entities.MusicAlbum", b =>
                 {
                     b.Navigation("Musics");
+                });
+
+            modelBuilder.Entity("Mizon.Database.Entities.MusicComment", b =>
+                {
+                    b.Navigation("Replies");
+
+                    b.Navigation("Tags");
+
+                    b.Navigation("Votes");
                 });
 
             modelBuilder.Entity("Mizon.Database.Entities.MusicContributorType", b =>

@@ -115,6 +115,9 @@ public sealed class MizonDatabaseContext(DbContextOptions<MizonDatabaseContext> 
         modelBuilder.ApplyConfiguration(new MusicViewConfiguration());
         modelBuilder.ApplyConfiguration(new MusicPlayConfiguration());
         FollowingActivityConfiguration.Configure(modelBuilder);
+        modelBuilder.ApplyConfiguration(new MusicCommentConfiguration());
+        modelBuilder.ApplyConfiguration(new MusicCommentVoteConfiguration());
+        modelBuilder.ApplyConfiguration(new MusicCommentTagConfiguration());
         modelBuilder.ApplyConfiguration(new StoryConfiguration());
         modelBuilder.ApplyConfiguration(new StoryContentTypeConfiguration());
         modelBuilder.ApplyConfiguration(new StoryViewConfiguration());
@@ -198,6 +201,8 @@ public sealed class MizonDatabaseContext(DbContextOptions<MizonDatabaseContext> 
     public DbSet<MusicLike> MusicLikes => Set<MusicLike>();
     public DbSet<MusicReaction> MusicReactions => Set<MusicReaction>();
     public DbSet<MusicComment> MusicComments => Set<MusicComment>();
+    public DbSet<MusicCommentVote> MusicCommentVotes => Set<MusicCommentVote>();
+    public DbSet<MusicCommentTag> MusicCommentTags => Set<MusicCommentTag>();
     public DbSet<MusicReactionType> MusicReactionTypes => Set<MusicReactionType>();
     public DbSet<MusicPlaylist> MusicPlaylists => Set<MusicPlaylist>();
     public DbSet<MusicPlaylistMusic> MusicPlaylistMusics => Set<MusicPlaylistMusic>();
