@@ -32,3 +32,7 @@ Integration/publication is coordinated by the root agent with the Server, SDK an
 Windows upgrades. Preserve current migrations and coordinate future model changes.
 
 AddTrackMusicVideos introduces one optional active video per music track, with separate optional cover media and restricted deletion. The existing track-detail API consumes these relationships. EF model checks and the pending-model check passed. No SQL connection or application of the migration was needed.
+
+A subsequent [local repair](tasks/2026-11-20-track-details-schema-repair.md)
+applied the missing migration and verified that the track-detail operation
+returns titles and genres for tracks without a linked video.
