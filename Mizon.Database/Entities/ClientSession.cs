@@ -25,5 +25,6 @@ public class ClientSession : IEntityTable<int>, IPublicId, ICreate, IUpdate
     public DateTimeOffset CreateDateTime { get; set; }
     public DateTimeOffset? UpdateDateTime { get; set; }
     public DateTimeOffset? LogoutDateTime { get; set; }
+    public bool IsConfirmationPending { get; set; }
     public List<ClientSessionIp> ClientSessionIps { get; set; } = [];
 }

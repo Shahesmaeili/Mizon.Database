@@ -16,7 +16,7 @@ namespace Mizon.Database.Migrations
         // If you encounter a merge conflict in the line below, it means you need to
         // discard one of the migration branches and recreate its migrations on top of
         // the other branch. See https://aka.ms/efcore-docs-migrations-conflicts for more info.
-        public override string LastMigrationId => "20261120145502_AddMusicCommentDiscussion";
+        public override string LastMigrationId => "20261125180141_AddClientSessionConfirmation";
 
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
@@ -41,6 +41,9 @@ namespace Mizon.Database.Migrations
                     b.Property<byte?>("ClientPrivacyTypeId")
                         .IsConcurrencyToken()
                         .HasColumnType("tinyint");
+
+                    b.Property<int?>("ClientSessionInactivityDays")
+                        .HasColumnType("int");
 
                     b.Property<DateTimeOffset>("CreateDateTime")
                         .HasColumnType("datetimeoffset");
@@ -589,6 +592,9 @@ namespace Mizon.Database.Migrations
                         .HasMaxLength(128)
                         .HasColumnType("nvarchar(128)");
 
+                    b.Property<bool>("IsConfirmationPending")
+                        .HasColumnType("bit");
+
                     b.Property<DateTimeOffset>("LastSeenDateTime")
                         .HasColumnType("datetimeoffset");
 
@@ -616,12 +622,12 @@ namespace Mizon.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClientId");
-
                     b.HasIndex("PlatformVersionId");
 
                     b.HasIndex("PublicId")
                         .IsUnique();
+
+                    b.HasIndex("ClientId", "LogoutDateTime", "LastSeenDateTime");
 
                     b.ToTable("ClientSessions");
                 });

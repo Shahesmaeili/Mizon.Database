@@ -9,6 +9,7 @@ public class Client : IEntityTable<int>, IPublicId, ICreate, IUpdate
     public string LastName { get; set; } = null!;
     public string? NickName { get; set; }
     public short TokenVersion { get; set; }
+    public int? ClientSessionInactivityDays { get; set; }
 
     public byte? ClientPrivacyTypeId { get; set; }
     public ClientPrivacyType? ClientPrivacyType { get; set; }

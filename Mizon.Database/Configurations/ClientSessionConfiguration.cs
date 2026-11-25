@@ -4,6 +4,8 @@ internal sealed class ClientSessionConfiguration : IEntityTypeConfiguration<Clie
 {
     public void Configure(EntityTypeBuilder<ClientSession> builder)
     {
+        builder.HasIndex(x => new { x.ClientId, x.LogoutDateTime, x.LastSeenDateTime });
+
         builder.Property(x => x.OsVersion)
             .IsRequired()
             .HasMaxLength(16);
